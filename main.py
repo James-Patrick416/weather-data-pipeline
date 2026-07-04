@@ -1,10 +1,10 @@
-from src.api import fetch_weather
+from src.ingest import ingest_weather
 
 
 def main():
-    weather = fetch_weather()
+    file_path = ingest_weather()
 
-    print(weather)
+    print(f"Weather data saved to: {file_path}")
 
 
 if __name__ == "__main__":

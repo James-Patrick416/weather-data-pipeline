@@ -7,17 +7,15 @@ from requests.exceptions import (
 )
 
 from src.config import API_KEY, CITY, UNITS, BASE_URL
+from src.utils import logger
 
 
 def fetch_weather():
     """
-    Fetch current weather data from OpenWeatherMap API.
+    Fetch weather data from OpenWeather API.
 
     Returns:
-        dict: JSON response from the API.
-
-    Raises:
-        Exception: If the request fails.
+        dict: Weather JSON.
     """
 
     params = {
@@ -27,6 +25,9 @@ def fetch_weather():
     }
 
     try:
+
+        logger.info("Requesting weather data from API...")
+
         response = requests.get(
             BASE_URL,
             params=params,
@@ -35,16 +36,30 @@ def fetch_weather():
 
         response.raise_for_status()
 
+        logger.info("Weather data fetched successfully.")
+
         return response.json()
 
     except HTTPError as err:
-        raise Exception(f"HTTP Error: {err}")
+
+        logger.error(f"HTTP Error: {err}")
+
+        raise
 
     except ConnectionError:
-        raise Exception("No internet connection.")
+
+        logger.error("No internet connection.")
+
+        raise
 
     except Timeout:
-        raise Exception("Request timed out.")
+
+        logger.error("Request timed out.")
+
+        raise
 
     except RequestException as err:
-        raise Exception(f"Unexpected error: {err}")
+
+        logger.error(f"Unexpected request error: {err}")
+
+        raise

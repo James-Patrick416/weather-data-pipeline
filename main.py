@@ -1,10 +1,10 @@
-from src.ingest import ingest_weather
+from src.database import create_database
 
 
 def main():
-    file_path = ingest_weather()
+    create_database()
 
-    print(f"Weather data saved to: {file_path}")
+    print("Database created successfully.")
 
 
 if __name__ == "__main__":

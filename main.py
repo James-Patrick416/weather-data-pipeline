@@ -1,18 +1,32 @@
 from src.database import create_database
 from src.ingest import ingest_weather
 from src.transform import transform_and_load
+from src.utils import logger
 
 
 def main():
-    create_database()
 
-    file_path, weather_data = ingest_weather()
+    logger.info("=" * 60)
 
-    print(f"Raw data saved to: {file_path}")
+    logger.info("Pipeline started.")
 
-    transform_and_load(weather_data)
+    try:
 
-    print("Pipeline completed successfully.")
+        create_database()
+
+        file_path, weather = ingest_weather()
+
+        transform_and_load(weather)
+
+        logger.info("Pipeline completed successfully.")
+
+    except Exception as err:
+
+        logger.exception(f"Pipeline failed: {err}")
+
+    finally:
+
+        logger.info("=" * 60)
 
 
 if __name__ == "__main__":

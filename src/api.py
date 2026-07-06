@@ -1,3 +1,7 @@
+"""
+Functions for communicating with the OpenWeather API.
+"""
+
 import requests
 from requests.exceptions import (
     HTTPError,
@@ -6,16 +10,27 @@ from requests.exceptions import (
     RequestException,
 )
 
+from pydantic import ValidationError
+
 from src.config import API_KEY, CITY, UNITS, BASE_URL
+from src.models import WeatherResponse
 from src.utils import logger
 
 
-def fetch_weather():
+def fetch_weather() -> WeatherResponse:
     """
-    Fetch weather data from OpenWeather API.
+    Fetch weather data from the API and validate it.
 
     Returns:
-        dict: Weather JSON.
+        WeatherResponse:
+            A validated Pydantic model.
+
+    Raises:
+        HTTPError
+        ConnectionError
+        Timeout
+        RequestException
+        ValidationError
     """
 
     params = {
@@ -38,28 +53,41 @@ def fetch_weather():
 
         logger.info("Weather data fetched successfully.")
 
-        return response.json()
+        # Convert JSON -> validated Pydantic model
+        weather = WeatherResponse.model_validate(
+            response.json()
+        )
+
+        logger.info("Weather response validated.")
+
+        return weather
+
+    except ValidationError as err:
+
+        logger.exception("Weather response failed validation.")
+
+        raise
 
     except HTTPError as err:
 
-        logger.error(f"HTTP Error: {err}")
+        logger.exception(f"HTTP Error: {err}")
 
         raise
 
     except ConnectionError:
 
-        logger.error("No internet connection.")
+        logger.exception("No internet connection.")
 
         raise
 
     except Timeout:
 
-        logger.error("Request timed out.")
+        logger.exception("Request timed out.")
 
         raise
 
     except RequestException as err:
 
-        logger.error(f"Unexpected request error: {err}")
+        logger.exception(f"Unexpected request error: {err}")
 
         raise

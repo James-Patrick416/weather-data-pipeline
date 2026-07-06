@@ -1,32 +1,48 @@
 """
 Pipeline orchestration.
 
-This module coordinates the ETL process without knowing
-implementation details of each stage.
+This module coordinates the ETL process.
+Each stage has exactly one responsibility.
 """
 
 from src.database import create_database
 from src.ingest import ingest_weather
-from src.transform import transform_and_load
+from src.transform import transform_weather
+from src.loader import load_weather
 from src.utils import logger
 
 
 def run_pipeline() -> None:
     """
-    Execute one complete ETL pipeline run.
+    Execute one complete ETL pipeline.
+
+    Flow:
+        Extract
+            ↓
+        Validate
+            ↓
+        Transform
+            ↓
+        Load
     """
 
     logger.info("=" * 60)
     logger.info("Pipeline started.")
 
     try:
+        # Ensure the database and tables exist.
         create_database()
 
+        # Extract + Validate
         file_path, weather = ingest_weather()
 
         logger.info(f"Snapshot saved to {file_path}")
 
-        transform_and_load(weather)
+        # Transform
+        record = transform_weather(weather)
+
+        # Load
+        load_weather(record)
 
         logger.info("Pipeline completed successfully.")
 

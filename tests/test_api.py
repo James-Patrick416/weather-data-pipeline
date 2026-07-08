@@ -13,10 +13,6 @@ from src.models import WeatherResponse
 
 
 def sample_api_response():
-    """
-    A realistic API response used by multiple tests.
-    """
-
     return {
         "name": "Nairobi",
         "dt": 1751800000,
@@ -45,6 +41,9 @@ def test_fetch_weather_success(mocker):
     The API client should return a validated WeatherResponse.
     """
 
+    # Skip configuration validation for this unit test.
+    mocker.patch("src.api.validate_config")
+
     fake_response = Mock()
     fake_response.json.return_value = sample_api_response()
     fake_response.raise_for_status.return_value = None
@@ -66,6 +65,8 @@ def test_fetch_weather_http_error(mocker):
     HTTP errors should be re-raised.
     """
 
+    mocker.patch("src.api.validate_config")
+
     fake_response = Mock()
     fake_response.raise_for_status.side_effect = HTTPError()
 
@@ -83,8 +84,10 @@ def test_fetch_weather_validation_error(mocker):
     Invalid API responses should raise ValidationError.
     """
 
+    mocker.patch("src.api.validate_config")
+
     invalid_response = {
-        "name": "Nairobi"
+        "name": "Nairobi",
     }
 
     fake_response = Mock()

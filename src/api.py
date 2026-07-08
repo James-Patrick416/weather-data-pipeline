@@ -8,11 +8,12 @@ from requests.exceptions import (
     ConnectionError,
     Timeout,
     RequestException,
+
 )
 
 from pydantic import ValidationError
 
-from src.config import API_KEY, CITY, UNITS, BASE_URL
+from src.config import API_KEY, CITY, UNITS, BASE_URL,validate_config
 from src.models import WeatherResponse
 from src.utils import logger
 
@@ -32,7 +33,7 @@ def fetch_weather() -> WeatherResponse:
         RequestException
         ValidationError
     """
-
+    validate_config()
     params = {
         "q": CITY,
         "appid": API_KEY,
